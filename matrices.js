@@ -1,4 +1,4 @@
-//constructs a matrix. If the first argment is an array or a matrix, the constructor will copy the values at every index. If it is a number, it will create a matrix of size rows by cols with the value given at each index
+//constructs a matrix. If the first argument is an array or a matrix, the constructor will copy the values at every index. If it is a number, it will create a matrix of size rows by cols with the value given at each index
 function Matrix(array, rows, cols)
 {
 	if(array == null)
@@ -60,7 +60,7 @@ Matrix.prototype.multiply = function(other) {
 	}
 	if(other.length != this[0].length)
 	{
-		throw "These two matrices cannot be multiplied";
+		throw new Error("These two matrices cannot be multiplied: the number of columns in the left-hand matrix must be equal to the number of rows in the right-hand matrix.");
 	}
 	var result = [];
 	for(var i = 0; i<this.length; i++)
@@ -114,16 +114,20 @@ Matrix.prototype.transpose = function() {
 };
 
 //do something with each value in the matrix
-Matrix.prototype.each = function(func) {
+Matrix.prototype.each = function(func, func2) {
 	this.func = func;
+	this.func2 = func2;
 	for(var i = 0; i<this.length; i++)
 	{
 		for(var x = 0; x<this[0].length; x++)
 		{
 			this.func(this[i][x], i, x);
 		}
+		if(this.func2){
+			this.func2(i);
+		}
 	}
-	this.func = undefined;
+	this.func = this.func2 = undefined;
 };
 
 //create a new matrix of the same size using each of this matrix
@@ -146,7 +150,7 @@ Matrix.prototype.create = function(func) {
 Matrix.prototype.pow = function(power) {
 	if(!this.isSquare())
 	{
-		throw "Can't raise a non-square matrix";
+		throw new Error("Can't raise a non-square matrix");
 	}
 	if(power == 0)
 	{
@@ -166,16 +170,12 @@ Matrix.prototype.raise = Matrix.prototype.pow;
 Matrix.prototype.identity = function(){
 	if(!this.isSquare())
 	{
-		throw "Can't get identity matrix for non-square matrix";
+		throw new Error("Can't get identity matrix for non-square matrix");
 	}
 	return Matrix.identity(this.length);
 };
 
 Matrix.prototype.add = function(other) {
-	if(this.length != other.length || this[0].length != other[0].length)
-	{
-		throw "Can't add two matrices that aren't the same size";
-	}
 	var result = [];
 	for(var i = 0; i<this.length; i++)
 	{
@@ -191,10 +191,6 @@ Matrix.prototype.add = function(other) {
 Matrix.prototype.plus = Matrix.prototype.add;
 
 Matrix.prototype.subtract = function(other) {
-	if(this.length != other.length || this[0].length != other[0].length)
-	{
-		throw "Can't subtract two matrices that aren't the same size";
-	}
 	var result = [];
 	for(var i = 0; i<this.length; i++)
 	{
@@ -216,7 +212,7 @@ Matrix.prototype.luDecomposition = function(){
 function LUDecomposition(matrix){
 	if(!matrix.isSquare())
 	{
-		throw "Can't decompose non-square matrix";
+		throw new Error("Can't decompose non-square matrix");
 	}
 	var l = matrix.identity(); 
 	var u = new Matrix(matrix);
@@ -225,12 +221,12 @@ function LUDecomposition(matrix){
 	{
 		for(var x = i + 1; x<matrix.length; x++)
 		{
-			var c = u[x][i].div(l[x - 1][i]);
+			var c = u[x][i].div(u[x - 1][i]);
 			u.subtractRows(x, x - 1, c);
 			l[x][i] = c;
 		}
 	}
-	for(var i = 0; i < this.length; i++){
+	for(var i = 0; i < u.length; i++){
 		determinant = determinant.times(u[i][i]);
 	}
 	this.l = l;
@@ -251,11 +247,11 @@ Matrix.prototype.isSquare = function(){
 Matrix.prototype.inverse = function(){
 	if(!this.isSquare())
 	{
-		throw "Can't invert non-square matrix";
+		throw new Error("Can't invert non-square matrix");
 	}
 	if(this.determinant().equals(0))
 	{
-		throw "Can't invert matrix: determinant equal to zero";
+		throw new Error("Can't invert matrix: determinant equal to zero");
 	}
 	var inv = this.identity();
 	var temp = new Matrix(this);
@@ -263,24 +259,22 @@ Matrix.prototype.inverse = function(){
 	{
 		for(var x = i + 1; x<this.length; x++)
 		{
-			var c = temp[x][i].div(temp[x - 1][i]);
-			temp.subtractRows(x, x - 1, c);
-			inv.subtractRows(x, x - 1, c);
+			var c = temp[x][i].div(temp[i][i]);
+			temp.subtractRows(x, i, c);
+			inv.subtractRows(x, i, c);
 		}
 	}
-	inv.scalarMultiplyRow(temp.length - 1, 1/temp[temp.length - 1][temp[0].length-1]);
-	temp[temp.length - 1][temp[0].length - 1] = 1;
-	for(var i = this[0].length - 1; i > 0; i--)
+	for(var i = this[0].length - 1; i > -1; i--)
 	{
+		var c = new BigNumber(1).div(temp[i][i]);
+		inv.scalarMultiplyRow(i, c);
+		temp.scalarMultiplyRow(i, c);
 		for(var x = i - 1; x > -1; x--)
 		{
 			var c = temp[x][i];
-			temp.subtractRows(x, x + 1, c);
-			inv.subtractRows(x, x + 1, c);
+			temp.subtractRows(x, i, c);
+			inv.subtractRows(x, i, c);
 		}
-		var c = new BigNumber(1).div(temp[i][i]);
-		inv.scalarMultiplyRow(i, c);
-		temp[i][i] = new BigNumber(1);
 	}
 	return inv;
 };
@@ -373,7 +367,7 @@ Vector.prototype = Matrix.prototype;
 Vector.prototype.dotProduct = function(other){
 	if(this.length != other.length)
 	{
-		throw "These two vectors cannot be multiplied";
+		throw new Error("These two vectors cannot be multiplied");
 	}
 	var total = 0;
 	for(var i = 0; i < this.length; i++)

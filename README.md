@@ -88,8 +88,8 @@ Returns the pseudo-inverse of the matrix (the transpose times the matrix, invert
 ### luDecomposition()
 Returns an LUDecomposition object for the matrix. See the LUDecomposition class for details. 
 
-### each(function)
-Iterates through the matrix and calls function with each value of the matrix, as well as the corresponding row and column numbers. The "this" keyword can be used to reference the matrix within the provided function. 
+### each(function, function2)
+Iterates through the matrix and calls function on every entry of the matrix. The corresponding row and column numbers are also passed. Calls function2 (optional) at the end of each row of the matrix. The "this" keyword can be used to reference the matrix within the provided functions. 
 
 ### create(function)
 Creates a new matrix with each entry corresponding to the result of passing the entry of this matrix and the corresponding row and column numbers to the provided function. The "this" keyword can be used to reference the matrix within the provided function. 
