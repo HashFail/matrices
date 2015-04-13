@@ -279,6 +279,20 @@ Matrix.prototype.inverse = function(){
 	return inv;
 };
 
+// Returns a new matrix containing all entries between [r1,c1] and [r2 - 1, c2 - 1] (inclusive). 
+Matrix.prototype.subMatrix = function(r1, c1, r2, c2){
+	r2 = r2 || this.length;
+	c2 = c2 || this[0].length;
+	var a = [];
+	for(var r = r1; r < r2; r++){
+		a[r] = [];
+		for(var c = c1; c < c2; c++){
+			a[r - r1][c - c1] = this[r][c];
+		}
+	}
+	return new Matrix(a);
+}
+
 Matrix.prototype.subtractRows = function(r1, r2, c){
 	for(var i = 0; i<this[0].length; i++)
 	{
@@ -293,7 +307,27 @@ Matrix.prototype.scalarMultiplyRow = function(r, c){
 	}
 };
 
+// Returns a string representing the matrix.
 Matrix.prototype.toString = function(){
+	var s = "";
+	for(var i = 0; i<this.length; i++)
+	{
+		for(var x = 0; x<this[0].length; x++)
+		{
+			s += this[i][x];
+			if(x != this[0].length - 1){
+				s += ", ";
+			}
+		}
+		if(i != this.length - 1){
+			s += "\n";
+		}
+	}
+	return s;
+}
+
+// Returns a string representing the matrix as an HTML table.
+Matrix.prototype.print = function(){
 	var s = "<table><tbody>";
 	for(var i = 0; i<this.length; i++)
 	{

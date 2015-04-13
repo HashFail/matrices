@@ -82,6 +82,9 @@ Returns the transpose of this matrix (swaps the rows and columns).
 ### inverse()
 Returns the inverse of the matrix. 
 
+### subMatrix(r1, c1, r2, c2)
+Returns a new matrix containing all entries between [r1,c1] and [r2 - 1, c2 - 1] (inclusive). 
+
 ### pseudoInverse() (alias pI)
 Returns the pseudo-inverse of the matrix (the transpose times the matrix, inverted, multiplied by the transpose).
 
@@ -101,6 +104,9 @@ Changes row r1 to to result of subtracting row r2 times c from row r1. This meth
 Changes row r to the result of multiplying row r by scalar c. This method is used by other methods for performing certain calculations and probably shouldn't be used. 
 
 ### toString()
+Returns a string representing the matrix with a new line for each row. 
+
+### print()
 Returns a string representing an HTML table element (so that the columns line up when the entires vary in length) filled with the entries of the matrix. 
 
 ## Vector (subclass)
